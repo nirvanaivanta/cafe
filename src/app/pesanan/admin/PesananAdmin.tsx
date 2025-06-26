@@ -54,7 +54,9 @@ export default function PesananPage() {
 
   return (
     <div className="min-h-screen bg-[#F9E0BB] px-6 py-14 sm:px-20 text-[#884A39]">
-      <h1 className="text-4xl font-bold text-center mb-10 font-serif">Pesanan</h1>
+        <h1 className="text-5xl uppercase font-extrabold text-center mb-12 tracking-wide drop-shadow-md">
+            PESANAN
+        </h1>
 
       <div className="grid md:grid-cols-2 gap-12">
         {/* Pilih Menu */}
