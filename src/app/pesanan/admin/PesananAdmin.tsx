@@ -48,9 +48,6 @@ export default function PesananPage() {
 
   const kembalian = bayar - totalHarga;
 
-  const handleCetakStruk = () => {
-    alert('Cetak struk berhasil! (simulasi)');
-  };
 
   return (
     <div className="min-h-screen bg-[#F9E0BB] px-6 py-14 sm:px-20 text-[#884A39]">
