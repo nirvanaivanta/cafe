@@ -291,51 +291,76 @@ return (
         )}
 
     {/* List */}
-    <div className="max-w-5xl mx-auto">
-      {/* <h2 className="text-3xl font-bold font-serif mb-6">Daftar Menu</h2> */}
-      <div className="space-y-6">
-        {menus.length === 0 ? (
-          <p className="text-center text-[#C38154] italic">Belum ada menu.</p>
-        ) : (
-          menus.map((menu) => (
-            <div
-              key={menu.id}
-              className="bg-white/70 backdrop-blur-md border border-[#FFC26F]/30 rounded-2xl px-6 py-5 shadow-sm hover:shadow-lg transition flex justify-between items-center"
-            >
-              <div>
-                <h3 className="text-xl font-semibold">{menu.name}</h3>
-                <p className="text-sm text-[#C38154] italic">{menu.category}</p>
-                <p className="text-sm mt-1">Harga: Rp{menu.price.toLocaleString()}</p>
-                <p className="text-sm">Stok: {menu.stock}</p>
-                {menu.image_url && (
-                  <img
-                    src={menu.image_url}
-                    alt={menu.name}
-                    className="w-24 h-24 object-cover rounded-lg mb-2"
-                  />
-                )}
+   <div className="max-w-5xl mx-auto">
+    <div className="space-y-6">
+      {menus.length === 0 ? (
+        <p className="text-center text-[#C38154] italic">Belum ada menu.</p>
+      ) : (
+        menus.map((menu) => (
+          <div
+            key={menu.id}
+            className="relative group bg-gradient-to-br from-[#FFF2E1]/60 to-[#F9E0BB]/60 backdrop-blur-md border border-[#FFC26F]/30 rounded-3xl px-6 py-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] transition-all duration-300 flex items-center gap-6"
+          >
+            {/* Aksen bulat kiri */}
+            <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-[#FFC26F] rounded-full shadow-lg"></div>
 
+            {/* Gambar */}
+            {menu.image_url ? (
+              <img
+                src={menu.image_url}
+                alt={menu.name}
+                className="w-24 h-24 object-cover rounded-xl border border-white shadow-inner"
+              />
+            ) : (
+              <div className="w-24 h-24 bg-gray-200 rounded-xl flex items-center justify-center text-gray-400 text-sm italic">
+                No Image
               </div>
-              <div className="flex flex-col gap-2">
+            )}
+
+            {/* Konten */}
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-[#884A39]">{menu.name}</h3>
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    menu.stock > 0
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
+                  }`}
+                >
+                  {menu.stock > 0 ? 'Ready' : 'Habis'}
+                </span>
+              </div>
+              <p className="text-sm text-[#C38154] italic">{menu.category}</p>
+              <p className="text-sm mt-1">
+                Harga: <span className="font-semibold">Rp{menu.price.toLocaleString()}</span>
+              </p>
+              <p className="text-sm">Stok: {menu.stock}</p>
+            </div>
+
+            {/* Tombol Aksi */}
+            <div className="flex flex-col gap-2">
               <button
                 onClick={() => handleEdit(menu)}
-                className="w-9 h-9 flex items-center justify-center bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                className="w-10 h-10 flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white rounded-2xl transition duration-200"
+                title="Edit"
               >
                 <Pencil className="w-4 h-4" />
               </button>
-
-                <button
-                  onClick={() => handleDelete(menu.id)}
-                  className="w-9 h-9 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-blue-600 transition"
-                >
-                  <Trash className="w-4 h-4" />
-                </button>
-              </div>
+              <button
+                onClick={() => handleDelete(menu.id)}
+                className="w-10 h-10 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-2xl transition duration-200"
+                title="Hapus"
+              >
+                <Trash className="w-4 h-4" />
+              </button>
             </div>
-          ))
-        )}
-      </div>
+          </div>
+        ))
+      )}
     </div>
+  </div>
+
   </div>
 );
 }

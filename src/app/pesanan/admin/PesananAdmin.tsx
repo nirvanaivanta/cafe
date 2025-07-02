@@ -69,47 +69,57 @@ export default function PesananPage() {
         )}
 
       <div className="grid md:grid-cols-2 gap-12">
-        {/* Pilih Menu */}
+          {/* Pilih Menu */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Pilih Menu</h2>
-          <div className="space-y-3">
-            {menus.map((menu) => {
-              const selected = selectedItems.find((item) => item.id === menu.id);
-              return (
-                <div
-                  key={menu.id}
-                  className={`flex items-center justify-between bg-white/80 backdrop-blur-md border border-[#FFC26F]/40 rounded-xl px-6 py-4 shadow-sm transition ${
-                    selected ? 'ring-2 ring-[#FFC26F]' : ''
-                  }`}
-                >
-                  <div>
-                    <p className="font-semibold">{menu.menu_name}</p>
-                    <p className="text-sm text-[#C38154]">Rp{menu.price.toLocaleString()}</p>
-                    <p className="text-sm text-[#C38154]">Stok <span className='font-bold text-[#884A39]'>{menu.stock}</span></p>
-                  </div>
+        <h2 className="text-2xl font-bold text-[#884A39] mb-6 tracking-wide border-b border-[#FFC26F]/50 pb-2">
+          Pilih Menu
+        </h2>
+
+        <div className="space-y-4">
+          {menus.map((menu) => {
+            const selected = selectedItems.find((item) => item.id === menu.id);
+            return (
+              <div
+                key={menu.id}
+                className={`relative flex items-center justify-between bg-gradient-to-r from-white/70 to-[#FFF4E3]/70 backdrop-blur-sm border border-[#FFC26F]/30 rounded-2xl px-6 py-5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition-all duration-200 hover:shadow-md ${
+                  selected ? 'ring-2 ring-[#FFC26F]' : ''
+                }`}
+              >
+                {/* Accent bar kiri */}
+                <div className="absolute left-0 top-0 h-full w-1 bg-[#FFC26F] rounded-l-2xl" />
+
+                <div className="flex-1">
+                  <p className="text-lg font-semibold text-[#884A39]">{menu.menu_name}</p>
+                  <p className="text-sm text-[#C38154] mt-0.5">Rp{menu.price.toLocaleString()}</p>
+                  <p className="text-sm text-[#C38154]">
+                    Stok: <span className="font-bold text-[#884A39]">{menu.stock}</span>
+                  </p>
+                </div>
+
+                <div className="ml-4">
                   {selected ? (
                     <input
                       type="number"
                       min={1}
                       value={selected.quantity}
-                      onChange={(e) =>
-                        updateQuantity(menu.id, Number(e.target.value))
-                      }
-                      className="w-20 px-3 py-1 rounded border text-right"
+                      onChange={(e) => updateQuantity(menu.id, Number(e.target.value))}
+                      className="w-20 text-right px-3 py-2 border rounded-lg text-[#884A39] font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FFC26F]/60"
                     />
                   ) : (
                     <button
                       onClick={() => toggleItem(menu.id)}
-                      className="bg-[#884A39] text-white px-4 py-2 rounded hover:bg-[#A45F44] transition"
+                      className="px-5 py-2 bg-[#884A39] hover:bg-[#A45F44] text-white rounded-xl text-sm font-semibold transition"
                     >
                       Pilih
                     </button>
                   )}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
+      </div>
+
 
         {/* Rincian Pesanan */}
         <div>
