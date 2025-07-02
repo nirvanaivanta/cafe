@@ -159,16 +159,41 @@ export default function RekapPage() {
         </table>
         
       </div>
-      {finalData.length > 0 && (
-        <div className="mt-10 max-w-4xl mx-auto space-y-4 bg-white/70 border border-[#FFC26F]/40 rounded-2xl shadow-lg p-6 text-sm sm:text-base">
-          <h2 className="text-xl font-bold mb-4 text-[#884A39]">Statistik Penjualan</h2>
-          <ul className="list-disc pl-5 space-y-2 text-[#5c3b28]">
-            <li><strong>Menu paling banyak terjual:</strong> {mostSoldMenu.menu} ({mostSoldMenu.quantity}x)</li>
-            <li><strong>Total transaksi:</strong> {totalTransaksi} item</li>
-            <li><strong>Rata-rata pendapatan per menu:</strong> Rp{avgRevenuePerMenu.toLocaleString(undefined, { maximumFractionDigits: 0 })}</li>
-          </ul>
+    {finalData.length > 0 && (
+      <div className="mt-12 max-w-5xl mx-auto grid sm:grid-cols-3 gap-6 text-[#5c3b28]">
+        {/* Paling banyak terjual */}
+        <div className="bg-gradient-to-br from-[#FFE0B2] to-[#FFF3E0] border border-[#FFC26F]/60 shadow-md rounded-2xl p-5 flex items-start gap-4">
+          <div className="text-2xl">🔥</div>
+          <div>
+            <p className="text-sm uppercase text-[#C38154] font-semibold">Terlaris</p>
+            <p className="text-lg font-bold">{mostSoldMenu.menu}</p>
+            <p className="text-sm">{mostSoldMenu.quantity}x terjual</p>
+          </div>
         </div>
-      )}
+        
+        {/* Rata-rata pendapatan */}
+        <div className="bg-gradient-to-br from-[#FFF8E1] to-[#FFF3E0] border border-[#FFC26F]/60 shadow-md rounded-2xl p-5 flex items-start gap-4">
+          <div className="text-2xl">💰</div>
+          <div>
+            <p className="text-sm uppercase text-[#C38154] font-semibold">Rata-rata Pendapatan/Menu</p>
+            <p className="text-lg font-bold">Rp{avgRevenuePerMenu.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+          </div>
+        </div>
+
+
+        {/* Total transaksi */}
+        <div className="bg-gradient-to-br from-[#FFF8E1] to-[#FFF3E0] border border-[#FFC26F]/60 shadow-md rounded-2xl p-5 flex items-start gap-4">
+          <div className="text-2xl">📦</div>
+          <div>
+            <p className="text-sm uppercase text-[#C38154] font-semibold">Total Transaksi</p>
+            <p className="text-lg font-bold">{totalTransaksi}</p>
+            <p className="text-sm">Item terjual</p>
+          </div>
+        </div>
+
+      </div>
+    )}
+
 
     </div>
   );
