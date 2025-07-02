@@ -6,6 +6,7 @@ type Menu = {
   id: number;
   menu_name: string;
   price: number;
+  stock: number;
 };
 
 export default function PesananPage() {
@@ -84,6 +85,7 @@ export default function PesananPage() {
                   <div>
                     <p className="font-semibold">{menu.menu_name}</p>
                     <p className="text-sm text-[#C38154]">Rp{menu.price.toLocaleString()}</p>
+                    <p className="text-sm text-[#C38154]">Stok <span className='font-bold text-[#884A39]'>{menu.stock}</span></p>
                   </div>
                   {selected ? (
                     <input
