@@ -1,28 +1,34 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Menu = {
   id: number;
-  name: string;
+  menu_name: string;
   price: number;
 };
 
 export default function PesananPage() {
-  const dummyMenus: Menu[] = [
-    { id: 1, name: 'Cappuccino', price: 20000 },
-    { id: 2, name: 'Es Teh Manis', price: 8000 },
-    { id: 3, name: 'Roti Bakar', price: 15000 },
-    { id: 4, name: 'Americano', price: 18000 },
-    { id: 5, name: 'Donat Coklat', price: 12000 },
-  ];
-
-  const [selectedItems, setSelectedItems] = useState<
-    { id: number; quantity: number }[]
-  >([]);
-
+  const [menus, setMenus] = useState<Menu[]>([]);
+  const [selectedItems, setSelectedItems] = useState<{ id: number; quantity: number }[]>([]);
   const [bayar, setBayar] = useState<number>(0);
+  const [tanggal, setTanggal] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+
+
   const strukRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const now = new Date();
+    setTanggal(now.toLocaleString());
+  }, []);
+
+
+  // Ambil menu dari backend
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/menus`)
+      .then(res => res.json())
+      .then(data => setMenus(data));
+  }, []);
 
   const toggleItem = (id: number) => {
     const existing = selectedItems.find((item) => item.id === id);
@@ -42,7 +48,7 @@ export default function PesananPage() {
   };
 
   const totalHarga = selectedItems.reduce((total, item) => {
-    const menu = dummyMenus.find((m) => m.id === item.id);
+    const menu = menus.find((m) => m.id === item.id);
     return total + (menu?.price || 0) * item.quantity;
   }, 0);
 
@@ -51,16 +57,22 @@ export default function PesananPage() {
 
   return (
     <div className="min-h-screen bg-[#F9E0BB] px-6 py-14 sm:px-20 text-[#884A39]">
+
         <h1 className="text-5xl uppercase font-extrabold text-center mb-12 tracking-wide drop-shadow-md">
             PESANAN
         </h1>
+        {showSuccess && (
+          <div className="bg-[#C38154] text-white text-center py-3 rounded-lg mb-6 transition duration-300 shadow-md">
+            ✅ Pesanan berhasil ditambahkan!
+          </div>
+        )}
 
       <div className="grid md:grid-cols-2 gap-12">
         {/* Pilih Menu */}
         <div>
           <h2 className="text-xl font-semibold mb-4">Pilih Menu</h2>
           <div className="space-y-3">
-            {dummyMenus.map((menu) => {
+            {menus.map((menu) => {
               const selected = selectedItems.find((item) => item.id === menu.id);
               return (
                 <div
@@ -70,7 +82,7 @@ export default function PesananPage() {
                   }`}
                 >
                   <div>
-                    <p className="font-semibold">{menu.name}</p>
+                    <p className="font-semibold">{menu.menu_name}</p>
                     <p className="text-sm text-[#C38154]">Rp{menu.price.toLocaleString()}</p>
                   </div>
                   {selected ? (
@@ -107,11 +119,11 @@ export default function PesananPage() {
                 <>
                     <ul className="space-y-2">
                     {selectedItems.map((item) => {
-                        const menu = dummyMenus.find((m) => m.id === item.id);
+                        const menu = menus.find((m) => m.id === item.id);
                         return (
                         <li key={item.id} className="flex justify-between">
                             <span>
-                            {menu?.name} × {item.quantity}
+                            {menu?.menu_name} × {item.quantity}
                             </span>
                             <span>
                             Rp{(menu!.price * item.quantity).toLocaleString()}
@@ -155,44 +167,72 @@ export default function PesananPage() {
                     </div>
                     )}
 
-                    <button
-                        onClick={() => {
-                            if (strukRef.current) {
-                            const printContents = strukRef.current.innerHTML;
-                            const printWindow = window.open('', '', 'width=600,height=800');
-                            if (printWindow) {
-                                printWindow.document.write(`
-                                <html>
-                                    <head>
-                                    <title>Struk Pembayaran</title>
-                                    <style>
-                                        body { font-family: sans-serif; padding: 20px; }
-                                        h2 { margin-top: 0; }
-                                        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-                                        td, th { border: 1px solid #ccc; padding: 8px; text-align: left; }
-                                        .total { font-weight: bold; }
-                                        .right { text-align: right; }
-                                    </style>
-                                    </head>
-                                    <body>
-                                    ${printContents}
-                                    </body>
-                                </html>
-                                `);
-                                printWindow.document.close();
-                                printWindow.focus();
-                                setTimeout(() => {
-                                printWindow.print();
-                                printWindow.close();
-                                }, 300);
-                            }
-                            }
-                        }}
-                        disabled={selectedItems.length === 0 || bayar < totalHarga}
-                        className="w-full mt-4 bg-[#884A39] text-white py-3 rounded-full hover:bg-[#A45F44] transition disabled:opacity-50"
-                        >
-                        Cetak Struk
-                    </button>
+                  <button
+                    onClick={async () => {
+                      if (selectedItems.length === 0 || bayar < totalHarga) return;
+
+                      // Kirim data pesanan ke backend
+                      try {
+                        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pesanan`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            items: selectedItems,
+                            total: totalHarga,
+                            bayar,
+                            kembalian,
+                          }),
+                        });
+                          setShowSuccess(true);
+                          setTimeout(() => setShowSuccess(false), 3000); 
+                      } catch (error) {
+                        console.error("Gagal menyimpan pesanan:", error);
+                        alert("Terjadi kesalahan saat menyimpan pesanan.");
+                        return;
+                      }
+
+                      // Lanjut print struk
+                      if (strukRef.current) {
+                        const printContents = strukRef.current.innerHTML;
+                        const printWindow = window.open('', '', 'width=600,height=800');
+                        if (printWindow) {
+                          printWindow.document.write(`
+                            <html>
+                              <head>
+                                <title>Struk Pembayaran</title>
+                                <style>
+                                  body { font-family: sans-serif; padding: 20px; }
+                                  h2 { margin-top: 0; }
+                                  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+                                  td, th { border: 1px solid #ccc; padding: 8px; text-align: left; }
+                                  .total { font-weight: bold; }
+                                  .right { text-align: right; }
+                                </style>
+                              </head>
+                              <body>
+                                ${printContents}
+                              </body>
+                            </html>
+                          `);
+                          printWindow.document.close();
+                          printWindow.focus();
+                          setTimeout(() => {
+                            printWindow.print();
+                            printWindow.close();
+                          }, 300);
+                        }
+                      }
+
+                      // Reset form setelah cetak (opsional)
+                      setSelectedItems([]);
+                      setBayar(0);
+                    }}
+                    disabled={selectedItems.length === 0 || bayar < totalHarga}
+                    className="w-full mt-4 bg-[#884A39] text-white py-3 rounded-full hover:bg-[#A45F44] transition disabled:opacity-50"
+                  >
+                    Cetak Struk
+                  </button>
+
 
                 </>
                 )}
@@ -251,7 +291,7 @@ export default function PesananPage() {
         <p style={{ marginBottom: '0.5rem' }}>Jl. Ngopi No. 42</p>
       </div>
 
-      <p>Tanggal: {new Date().toLocaleString()}</p>
+    <p>Tanggal: {tanggal}</p>
 
       <table>
         <thead>
@@ -263,10 +303,10 @@ export default function PesananPage() {
         </thead>
         <tbody>
           {selectedItems.map((item) => {
-            const menu = dummyMenus.find((m) => m.id === item.id);
+            const menu = menus.find((m) => m.id === item.id);
             return (
               <tr key={item.id}>
-                <td>{menu?.name}</td>
+                <td>{menu?.menu_name}</td>
                 <td>{item.quantity}</td>
                 <td className="right">Rp{(menu!.price * item.quantity).toLocaleString()}</td>
               </tr>
