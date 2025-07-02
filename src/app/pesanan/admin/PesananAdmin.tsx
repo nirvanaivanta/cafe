@@ -234,8 +234,6 @@ export default function PesananPage() {
                   >
                     Cetak Struk
                   </button>
-
-
                 </>
                 )}
         </div>

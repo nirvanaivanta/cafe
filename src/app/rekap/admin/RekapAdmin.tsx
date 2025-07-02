@@ -4,12 +4,23 @@ import { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
+type RawPesanan = {
+  created_at: string;
+  details: {
+    menu: {
+      menu_name: string; 
+    };
+    quantity: number;
+    subtotal: number;
+  }[];
+};
+
+
 type SaleItem = {
-  id: number;
   menu: string;
   quantity: number;
   total: number;
-  date: string; // format YYYY-MM-DD
+  date: string;
 };
 
 export default function RekapPage() {
@@ -18,20 +29,52 @@ export default function RekapPage() {
   const [data, setData] = useState<SaleItem[]>([]);
 
   useEffect(() => {
-    const dummySales: SaleItem[] = [
-      { id: 1, menu: 'Cappuccino', quantity: 2, total: 40000, date: today },
-      { id: 2, menu: 'Roti Bakar', quantity: 1, total: 15000, date: today },
-      { id: 3, menu: 'Es Teh Manis', quantity: 3, total: 24000, date: today },
-      { id: 4, menu: 'Donat', quantity: 2, total: 24000, date: '2024-06-25' },
-    ];
-    setData(dummySales);
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pesanan`);
+        const json: RawPesanan[] = await res.json();
+
+        // Ubah menjadi bentuk SaleItem[]
+        const items: SaleItem[] = [];
+        json.forEach((pesanan) => {
+          const date = new Date(pesanan.created_at).toISOString().split('T')[0];
+          pesanan.details.forEach((detail) => {
+            items.push({
+              menu: detail.menu.menu_name,
+              quantity: detail.quantity,
+              total: detail.subtotal,
+              date,
+            });
+          });
+        });
+
+        setData(items);
+      } catch (error) {
+        console.error('Gagal mengambil data rekap:', error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const filteredData = data.filter((item) => item.date === filterDate);
-  const totalPendapatan = filteredData.reduce((sum, item) => sum + item.total, 0);
+
+  // Gabungkan data per menu
+  const combinedData: Record<string, SaleItem> = {};
+  filteredData.forEach((item) => {
+    if (!combinedData[item.menu]) {
+      combinedData[item.menu] = { ...item };
+    } else {
+      combinedData[item.menu].quantity += item.quantity;
+      combinedData[item.menu].total += item.total;
+    }
+  });
+
+  const finalData = Object.values(combinedData);
+  const totalPendapatan = finalData.reduce((sum, item) => sum + item.total, 0);
 
   const handleExport = () => {
-    const ws = XLSX.utils.json_to_sheet(filteredData);
+    const ws = XLSX.utils.json_to_sheet(finalData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Rekap');
     const blob = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
@@ -44,15 +87,15 @@ export default function RekapPage() {
         Rekap Penjualan
       </h1>
 
-      {/* Filter Section */}
-      <div className="bg-white/80 backdrop-blur-md border border-[#FFC26F]/40 rounded-2xl shadow-md p-6 max-w-4xl mx-auto mb-10 flex flex-col sm:flex-row justify-between items-center gap-6">
-        <div className="w-full sm:w-auto">
+      {/* Filter */}
+      <div className="bg-white/80 border rounded-2xl shadow-md p-6 max-w-4xl mx-auto mb-10 flex flex-col sm:flex-row justify-between items-center gap-6">
+        <div>
           <label className="text-sm font-semibold block mb-1">Filter Tanggal</label>
           <input
             type="date"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
-            className="px-4 py-2 rounded border border-[#FFC26F]/60 focus:ring-2 focus:ring-[#FFC26F] w-full sm:w-64"
+            className="px-4 py-2 rounded border focus:ring-2 focus:ring-[#FFC26F] w-64"
           />
         </div>
         <button
@@ -63,10 +106,10 @@ export default function RekapPage() {
         </button>
       </div>
 
-      {/* Tabel Penjualan */}
-      <div className="bg-white/80 backdrop-blur-md border border-[#FFC26F]/30 shadow-md rounded-2xl overflow-hidden w-full">
-        <table className="w-full table-auto text-sm">
-          <thead className="bg-[#884A39]/80 text-white text-sm font-bold uppercase tracking-wide">
+      {/* Tabel */}
+      <div className="bg-white/80 border shadow-md rounded-2xl overflow-hidden w-full">
+        <table className="w-full text-sm">
+          <thead className="bg-[#884A39]/80 text-white font-bold uppercase">
             <tr>
               <th className="px-6 py-3 text-left">Menu</th>
               <th className="px-6 py-3 text-center">Jumlah</th>
@@ -74,7 +117,7 @@ export default function RekapPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredData.length === 0 ? (
+            {finalData.length === 0 ? (
               <tr>
                 <td colSpan={3} className="text-center py-6 text-gray-500 italic">
                   Tidak ada penjualan pada tanggal ini.
@@ -82,14 +125,14 @@ export default function RekapPage() {
               </tr>
             ) : (
               <>
-                {filteredData.map((item) => (
-                  <tr key={item.id} className="border-t border-[#FFC26F]/30">
+                {finalData.map((item, index) => (
+                  <tr key={index} className="border-t">
                     <td className="px-6 py-4">{item.menu}</td>
                     <td className="px-6 py-4 text-center">{item.quantity}</td>
                     <td className="px-6 py-4 text-right">Rp{item.total.toLocaleString()}</td>
                   </tr>
                 ))}
-                <tr className="bg-[#FDEEDC] font-semibold text-[#884A39] border-t border-[#FFC26F]/30">
+                <tr className="bg-[#FDEEDC] font-semibold border-t">
                   <td className="px-6 py-4" colSpan={2}>
                     Total Pendapatan
                   </td>
