@@ -80,6 +80,19 @@ export default function RekapPage() {
     const blob = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     saveAs(new Blob([blob]), `rekap-${filterDate}.xlsx`);
   };
+  const mostSoldMenu = finalData.reduce((max, item) =>
+    item.quantity > max.quantity ? item : max,
+    { menu: '', quantity: 0, total: 0 }
+  );
+
+  const highestRevenueMenu = finalData.reduce((max, item) =>
+    item.total > max.total ? item : max,
+    { menu: '', quantity: 0, total: 0 }
+  );
+
+  const totalTransaksi = filteredData.length;
+  const avgRevenuePerMenu = finalData.length > 0 ? totalPendapatan / finalData.length : 0;
+
 
   return (
     <div className="min-h-screen bg-[#F9E0BB] px-6 py-14 text-[#884A39] font-sans">
@@ -144,7 +157,19 @@ export default function RekapPage() {
             )}
           </tbody>
         </table>
+        
       </div>
+      {finalData.length > 0 && (
+        <div className="mt-10 max-w-4xl mx-auto space-y-4 bg-white/70 border border-[#FFC26F]/40 rounded-2xl shadow-lg p-6 text-sm sm:text-base">
+          <h2 className="text-xl font-bold mb-4 text-[#884A39]">Statistik Penjualan</h2>
+          <ul className="list-disc pl-5 space-y-2 text-[#5c3b28]">
+            <li><strong>Menu paling banyak terjual:</strong> {mostSoldMenu.menu} ({mostSoldMenu.quantity}x)</li>
+            <li><strong>Total transaksi:</strong> {totalTransaksi} item</li>
+            <li><strong>Rata-rata pendapatan per menu:</strong> Rp{avgRevenuePerMenu.toLocaleString(undefined, { maximumFractionDigits: 0 })}</li>
+          </ul>
+        </div>
+      )}
+
     </div>
   );
 }
