@@ -83,7 +83,7 @@ export default function RekapPage() {
 
   return (
     <div className="min-h-screen bg-[#F9E0BB] px-6 py-14 text-[#884A39] font-sans">
-      <h1 className="text-5xl font-extrabold text-center mb-12 font-serif drop-shadow-md tracking-wider">
+      <h1 className="text-5xl font-extrabold text-center mb-12 drop-shadow-md tracking-wider uppercase">
         Rekap Penjualan
       </h1>
 
