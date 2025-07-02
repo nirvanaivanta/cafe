@@ -14,7 +14,7 @@ export default function AdminSidebar() {
 
   return (
     <aside className="w-full sm:w-64 bg-[#884A39] text-white min-h-screen px-6 py-10 fixed top-0 left-0 shadow-lg z-10">
-      <h2 className="text-3xl font-bold mb-12 text-center font-serif">Admin</h2>
+      <h2 className="text-3xl font-bold mb-12 text-center font-serif uppercase">Admin</h2>
       <nav className="flex flex-col gap-3">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
